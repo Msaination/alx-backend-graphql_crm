@@ -1,6 +1,5 @@
 .venvGraphQL/
 __pycache__/
 *.pyc
-.env
 .DS_Store
 db.sqlite3
