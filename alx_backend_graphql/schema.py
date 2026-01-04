@@ -6,3 +6,4 @@ class Query(graphene.ObjectType):
 
 # Create the schema object
 schema = graphene.Schema(query=Query)
+
