@@ -1,11 +1,13 @@
 import graphene
 from graphene_django import DjangoObjectType 
+from graphene_django.filter import DjangoFilterConnectionField
 from django.core.exceptions import ValidationError 
 from django.db import transaction 
 from django.utils import timezone 
 import re
 from .models import Customer, Product, Order
 from decimal import Decimal
+from . filters import CustomerFilter, ProductFilter, OrderFilter
 
 # GraphQL Types for Django Models
 
@@ -14,35 +16,51 @@ class CustomerType(DjangoObjectType):
     class Meta:
         model = Customer
         fields = "__all__"
+        filterset_class = CustomerFilter
+        interfaces = (graphene.relay.Node,) # ✅ add this
 
 class ProductType(DjangoObjectType):
     class Meta:
         model = Product
         fields = "__all__"
+        filterset_class = ProductFilter
+        interfaces = (graphene.relay.Node,) # ✅ add this
 
 class OrderType(DjangoObjectType):
     class Meta:
         model = Order
         fields = "__all__"
+        filterset_class = OrderFilter
+        interfaces = (graphene.relay.Node,) # ✅ add this
 
 class CRMQuery(graphene.ObjectType):
     # Example field
     hello_crm = graphene.String(default_value="Hello from CRM!")
     
 # ✅ Define Query here 
-class Query(graphene.ObjectType): 
-    all_customers = graphene.List(CustomerType) 
-    all_products = graphene.List(ProductType) 
-    all_orders = graphene.List(OrderType) 
-    
-    def resolve_all_customers(root, info): 
-        return Customer.objects.all() 
-    
-    def resolve_all_products(root, info): 
-        return Product.objects.all()
-     
-    def resolve_all_orders(root, info): 
-        return Order.objects.all()
+class Query(graphene.ObjectType):
+    all_customers = DjangoFilterConnectionField(CustomerType, order_by=graphene.List(of_type=graphene.String))
+    all_products = DjangoFilterConnectionField(ProductType, order_by=graphene.List(of_type=graphene.String))
+    all_orders = DjangoFilterConnectionField(OrderType, order_by=graphene.List(of_type=graphene.String))
+
+    def resolve_all_customers(root, info, order_by=None, **kwargs):
+        qs = Customer.objects.all()
+        if order_by:
+            qs = qs.order_by(*order_by)
+        return qs
+
+    def resolve_all_products(root, info, order_by=None, **kwargs):
+        qs = Product.objects.all()
+        if order_by:
+            qs = qs.order_by(*order_by)
+        return qs
+
+    def resolve_all_orders(root, info, order_by=None, **kwargs):
+        qs = Order.objects.all()
+        if order_by:
+            qs = qs.order_by(*order_by)
+        return qs
+
 
  # ------------------- # CreateCustomer # -------------------
 

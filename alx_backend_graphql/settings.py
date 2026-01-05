@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'graphene_django', 
     # Local app 
     'crm',
+    'django_filters',
     
 ]
 GRAPHENE = {
