@@ -43,6 +43,11 @@ INSTALLED_APPS = [
     'crm',
     
 ]
+GRAPHENE = {
+    'SCHEMA': 'alx_backend_graphql.schema.schema'
+}
+
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
