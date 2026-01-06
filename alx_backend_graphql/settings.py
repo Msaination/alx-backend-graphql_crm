@@ -132,5 +132,7 @@ STATIC_URL = 'static/'
 CRONJOBS = [
     # Every 5 minutes
     ('*/5 * * * *', 'crm.cron.log_crm_heartbeat'),
+    # Every 12 hours
+    ('0 */12 * * *', 'crm.cron.update_low_stock'),
 ]
 

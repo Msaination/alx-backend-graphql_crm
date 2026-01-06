@@ -11,6 +11,10 @@ from . filters import CustomerFilter, ProductFilter, OrderFilter
 
 # GraphQL Types for Django Models
 
+class ProductType(DjangoObjectType): 
+    class Meta: 
+        model = Product 
+        fields = "__all__"
 
 class CustomerType(DjangoObjectType):
     class Meta:
@@ -169,8 +173,27 @@ class CreateOrder(graphene.Mutation):
         
         return CreateOrder(order=order, message="Order created successfully.")
     
+# ------------------- # UpdateLowStockProducts # -------------------
+class UpdateLowStockProducts(graphene.Mutation):
+
+    updated_products = graphene.List(ProductType)
+    message = graphene.String()
+
+    def mutate(self, info):
+        low_stock_products = Product.objects.filter(stock__lt=10)
+        updated = []
+
+        for product in low_stock_products:
+            product.stock += 10  # simulate restocking
+            product.save()
+            updated.append(product)
+
+        msg = f"{len(updated)} products restocked successfully."
+        return UpdateLowStockProducts(updated_products=updated, message=msg)
+    
 # ------------------- # Root Mutation # -------------------
 class Mutation(graphene.ObjectType): 
+    update_low_stock_products = UpdateLowStockProducts.Field()
     create_customer = CreateCustomer.Field() 
     bulk_create_customers = BulkCreateCustomers.Field() 
     create_product = CreateProduct.Field() 
