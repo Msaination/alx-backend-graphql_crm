@@ -6,6 +6,7 @@ from django.db import transaction
 from django.utils import timezone 
 import re
 from .models import Customer, Product, Order
+from crm.models import Product
 from decimal import Decimal
 from . filters import CustomerFilter, ProductFilter, OrderFilter
 
@@ -194,6 +195,9 @@ class UpdateLowStockProducts(graphene.Mutation):
 # ------------------- # Root Mutation # -------------------
 class Mutation(graphene.ObjectType): 
     update_low_stock_products = UpdateLowStockProducts.Field()
+    
+
+    
     create_customer = CreateCustomer.Field() 
     bulk_create_customers = BulkCreateCustomers.Field() 
     create_product = CreateProduct.Field() 
